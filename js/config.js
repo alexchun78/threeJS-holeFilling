@@ -122,11 +122,11 @@ const CONFIG = {
 		],
 		// Directional lights, don't move with the camera
 		DIRECTIONAL: [
-			// {
-			// 	color: 0xFFFFFF,
-			// 	intensity: 0.3,
-			// 	position: [1, 0, 1]
-			// }
+			{
+				color: 0xFFFFFF,
+				intensity: 0.3,
+				position: [1, 0, 1]
+			}
 		]
 	},
 

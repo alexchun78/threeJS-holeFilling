@@ -98,7 +98,7 @@ WebHF.HoleFinding = {
 
 				// Find connected border points
 				try {
-					geometry = this.getNeighbouringBorderPoints( model, mesh, vertex );
+					geometry = this.getNeighbouringBorderPoints( model, vertex );
 				}
 				catch( err ) {
 					console.error( err.name + ': ' + err.message );
@@ -179,7 +179,7 @@ WebHF.HoleFinding = {
 	 * @param  {Vertex}         start  - Starting vertex.
 	 * @return {THREE.Geometry} Geometry of a hole.
 	 */
-	getNeighbouringBorderPoints( model, mesh, start ) {
+	getNeighbouringBorderPoints( model, start ) {
 		const geometry = new THREE.Geometry();
 		const mgv = model.geometry.vertices;
 
