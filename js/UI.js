@@ -496,7 +496,11 @@ WebHF.UI.REGISTER = {
 	 */
 	registerEditOptions() {
 		const buttonFindEdges = document.getElementById( 'edit_findedges' );
-		buttonFindEdges.addEventListener( 'click', ev => WebHF.SceneManager.findHoles( ev ) );
+		buttonFindEdges.addEventListener( 'click', ev => 
+		{
+			WebHF.SceneManager.findHoles( ev ) 
+		}
+		);
 	},
 
 
