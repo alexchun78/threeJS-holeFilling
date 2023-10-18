@@ -337,7 +337,7 @@ WebHF.SceneManager = {
 		WebHF.Stopwatch.start( 'find holes' );
 
 		const border = WebHF.HoleFinding.findBorderEdges( this.model );
-
+		console.log(border);
 		WebHF.Stopwatch.stop( 'find holes', true );
 		WebHF.Stopwatch.remove( 'find holes' );
 
@@ -354,7 +354,7 @@ WebHF.SceneManager = {
 		for( let i = 0, len = border.points.length; i < len; i++ ) {
 			this.scene.add( border.points[i] );
 		}
-
+		console.log(this.holeLines);
 		WebHF.render();
 
 		this.holes = border.holes;
