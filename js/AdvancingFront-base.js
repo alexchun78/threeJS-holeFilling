@@ -82,7 +82,6 @@ WebHF.AdvancingFront = {
 
 			const angle = new WebHF.Angle( [vp, v, vn] );
 			angle.previous = prev;
-
 			angles.push( angle );
 
 			if( i > 0 ) {
@@ -133,6 +132,7 @@ WebHF.AdvancingFront = {
 	 * @return {boolean} True, if an angle has been updated, false otherwise.
 	 */
 	heapMergeVertex( vOld, vNew ) {
+		
 		for( const key in this.heap.values ) {
 			const angles = this.heap.values[key];
 
@@ -185,7 +185,6 @@ WebHF.AdvancingFront = {
 	 */
 	initHeap( front ) {
 		const ca = this.computeAngles( front.vertices );
-
 		this.heap = new WebHF.Heap( "all" );
 
 		// Initialize heaps
@@ -213,7 +212,7 @@ WebHF.AdvancingFront = {
 		}
 
 		let vIndex = filling.vertices.indexOf( v );
-
+		
 		if( vIndex < 0 ) {
 			console.error( 'mergeByDistance: Given vertex not part of filling!' );
 			return false;
@@ -242,6 +241,7 @@ WebHF.AdvancingFront = {
 
 			// The original form of the hole shall not be changed
 			if( ignore.indexOf( t ) >= 0 ) {
+				console.log('ignore')
 				continue;
 			}
 
@@ -275,12 +275,13 @@ WebHF.AdvancingFront = {
 	mergeUpdateFront( front, vOld, vNew ) {
 		const ixFrom = front.vertices.indexOf( vOld );
 		const ixTo = front.vertices.indexOf( vNew );
-
+		console.log(ixFrom, ixTo);	
 		if( ixFrom < 0 || ixTo < 0 ) {
 			throw new Error( "Vertex not found in front." );
 		}
 
 		front.vertices.splice( ixFrom, 1 );
+		//console.log(front.vertices);
 	},
 
 
@@ -335,13 +336,14 @@ WebHF.AdvancingFront = {
 
 		// Cross vector lying (more-or-less) on the imagined plane of the hole. More-or-less.
 		const c2 = c.clone().cross( vnClone ).normalize().add( v );
-
+		
 		// Now it's similar to rule 2.
 		const plane = new WebHF.Plane( new THREE.Vector3(), vnClone, c2.clone().sub( v ) );
-
-		let vNew = plane.getPoint( 1, 1 );
+		let vNew = plane.getPoint( 1, 1 );	
+	
 		vNew.setLength( vnClone.length() );
 		vNew.add( v );
+		
 		vNew = WebHF.Utils.keepNearPlane( vNew, [vp, v, vn], this.mergeThreshold);
 
 		return vNew;
@@ -365,6 +367,7 @@ WebHF.AdvancingFront = {
 	 * @param  {number}         newIndex - The new vertex index.
 	 */
 	updateFaces( filling, oldIndex, newIndex ) {
+
 		for( let i = filling.faces.length - 1; i >= 0; i-- ) {
 			const face = filling.faces[i];
 

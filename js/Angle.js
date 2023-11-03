@@ -5,7 +5,6 @@
 
 class Angle {
 
-
 	/**
 	 * Class to store information about an angle in the front.
 	 * @constructor

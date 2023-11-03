@@ -1,6 +1,7 @@
 'use strict';
 
 
+
 /**
  * Manipulating the scene (models, lights, camera).
  * @namespace WebHF.SceneManager
@@ -337,7 +338,6 @@ WebHF.SceneManager = {
 		WebHF.Stopwatch.start( 'find holes' );
 
 		const border = WebHF.HoleFinding.findBorderEdges( this.model );
-		console.log(border);
 		WebHF.Stopwatch.stop( 'find holes', true );
 		WebHF.Stopwatch.remove( 'find holes' );
 
@@ -354,10 +354,10 @@ WebHF.SceneManager = {
 		for( let i = 0, len = border.points.length; i < len; i++ ) {
 			this.scene.add( border.points[i] );
 		}
-		console.log(this.holeLines);
 		WebHF.render();
 
 		this.holes = border.holes;
+		
 		WebHF.UI.showDetailHoles( border.lines );
 	},
 
@@ -471,6 +471,7 @@ WebHF.SceneManager = {
 	mergeWithFilling( filling, holeIndex ) {
 		const gm = this.model;
 		gm.geometry.merge( filling );
+		//this.merge(gm.geometry, filling);
 		gm.geometry.mergeVertices();
 		gm.geometry.computeFaceNormals();
 		gm.geometry.computeVertexNormals();
@@ -480,6 +481,127 @@ WebHF.SceneManager = {
 		WebHF.UI.updateProgress( 100 );
 
 		WebHF.Stopwatch.stop( 'fill hole (AF)', true );
+	},
+
+	
+	merge: function ( modelGeo, geometry, matrix, materialIndexOffset ) {
+
+		if ( ! ( geometry && geometry.isGeometry ) ) {
+
+			console.error( 'THREE.Geometry.merge(): geometry not an instance of THREE.Geometry.', geometry );
+			return;
+
+		}
+
+		let normalMatrix,
+			vertexOffset = modelGeo.vertices.length,
+			vertices1 = modelGeo.vertices,
+			vertices2 = geometry.vertices,
+			faces1 = modelGeo.faces,
+			faces2 = geometry.faces,
+			colors1 = modelGeo.colors,
+			colors2 = geometry.colors;
+
+		if ( materialIndexOffset === undefined ) materialIndexOffset = 0;
+
+		if ( matrix !== undefined ) {
+
+			normalMatrix = new THREE.Matrix3().getNormalMatrix( matrix );
+
+		}
+
+		// vertices
+
+		for ( let i = 0, il = vertices2.length; i < il; i ++ ) {
+
+			const vertex = vertices2[ i ];
+
+			const vertexCopy = vertex.clone();
+
+			if ( matrix !== undefined ) vertexCopy.applyMatrix4( matrix );
+
+			vertices1.push( vertexCopy );
+
+		}
+
+		// colors
+
+		for ( let i = 0, il = colors2.length; i < il; i ++ ) {
+
+			colors1.push( colors2[ i ].clone() );
+
+		}
+
+		// faces
+
+		for ( let i = 0, il = faces2.length; i < il; i ++ ) {
+
+			let face = faces2[ i ], faceCopy, normal, color,
+				faceVertexNormals = face.vertexNormals,
+				faceVertexColors = face.vertexColors;
+
+			faceCopy = new THREE.Face3( face.a + vertexOffset, face.b + vertexOffset, face.c + vertexOffset );
+			faceCopy.normal.copy( face.normal );
+
+			if ( normalMatrix !== undefined ) {
+
+				faceCopy.normal.applyMatrix3( normalMatrix ).normalize();
+
+			}
+
+			for ( let j = 0, jl = faceVertexNormals.length; j < jl; j ++ ) {
+
+				normal = faceVertexNormals[ j ].clone();
+
+				if ( normalMatrix !== undefined ) {
+
+					normal.applyMatrix3( normalMatrix ).normalize();
+
+				}
+
+				faceCopy.vertexNormals.push( normal );
+
+			}
+
+			faceCopy.color.copy( face.color );
+
+			for ( let j = 0, jl = faceVertexColors.length; j < jl; j ++ ) {
+
+				color = faceVertexColors[ j ];
+				faceCopy.vertexColors.push( color.clone() );
+
+			}
+
+			faceCopy.materialIndex = face.materialIndex + materialIndexOffset;
+
+			faces1.push( faceCopy );
+
+		}
+
+		// uvs
+
+		for ( let i = 0, il = geometry.faceVertexUvs.length; i < il; i ++ ) {
+
+			const faceVertexUvs2 = geometry.faceVertexUvs[ i ];
+
+			if ( modelGeo.faceVertexUvs[ i ] === undefined ) modelGeo.faceVertexUvs[ i ] = [];
+
+			for ( let j = 0, jl = faceVertexUvs2.length; j < jl; j ++ ) {
+
+				const uvs2 = faceVertexUvs2[ j ], uvsCopy = [];
+
+				for ( let k = 0, kl = uvs2.length; k < kl; k ++ ) {
+
+					uvsCopy.push( uvs2[ k ].clone() );
+
+				}
+
+				modelGeo.faceVertexUvs[ i ].push( uvsCopy );
+
+			}
+
+		}
+
 	},
 
 

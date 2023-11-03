@@ -43,6 +43,7 @@ class Heap {
 
 		if( !this.values.hasOwnProperty( key ) ) {
 			this.values[key] = [];
+			
 		}
 
 		this.values[key].push( value );

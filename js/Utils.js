@@ -263,7 +263,6 @@ WebHF.Utils = {
 		if( face.c > cmpIndex ) {
 			face.c--;
 		}
-
 		// Triangle disappeared through merge
 		if( face.a == face.b || face.a == face.c || face.b == face.c ) {
 			faces.splice( i, 1 );

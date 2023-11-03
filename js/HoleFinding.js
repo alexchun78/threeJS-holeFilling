@@ -167,7 +167,7 @@ WebHF.HoleFinding = {
 
 		thresholdMerging /= len;
 		hole.thresholdMerging = Math.round( thresholdMerging * 1000 ) / 1000;
-		console.log('eee : ',hole);
+
 		return hole;
 	},
 
@@ -258,7 +258,7 @@ WebHF.HoleFinding = {
 
 		// Check if it is really a hole and not the outline of an existing triangle.
 		const angleAverage = WebHF.Utils.calculateAngleAverage( geometry.vertices, model.position );
-		console.log(angleAverage);
+		//console.log(angleAverage);
 		if( angleAverage >= 180.0 ) {
 			throw new Error( 'Found hole is not a hole, but the outline of an existing triangle.' );
 		}

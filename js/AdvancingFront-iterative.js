@@ -16,6 +16,7 @@ AdvancingFront.mode = 'iterative';
  * @return {boolean} Rule 1 doesn't create a new vertex, so it will always return false.
  */
 AdvancingFront.applyRule1 = function( front, filling, angle ) {
+	console.log('applyRule1');
 	const vp = angle.vertices[0];
 	const v = angle.vertices[1];
 	const vn = angle.vertices[2];
@@ -44,7 +45,8 @@ AdvancingFront.applyRule1 = function( front, filling, angle ) {
 		angle.waitForUpdate = true;
 		this.heap.insert( angle.degree, angle );
 	}
-
+	//console.log('rule1 verts', filling.vertices);
+	//console.log('rule1 ids', filling.faces);
 	return false;
 };
 
@@ -57,6 +59,12 @@ AdvancingFront.applyRule1 = function( front, filling, angle ) {
  * @return {THREE.Vector3} New vertex.
  */
 AdvancingFront.applyRule2 = function( front, filling, angle ) {
+
+	// if(filling.vertices.length === 101 && filling.faces.length === 93){
+	// 	console.log('before rule2 verts : ', filling.vertices);
+	// 	console.log('before rule2 ids : ', filling.faces);	
+	// }
+	console.log('applyRule2');
 	const vp = angle.vertices[0];
 	const v = angle.vertices[1];
 	const vn = angle.vertices[2];
@@ -85,7 +93,9 @@ AdvancingFront.applyRule2 = function( front, filling, angle ) {
 
 	// Otherwise don't update the Angles.
 	this.heap.insert( angle.degree, angle );
-
+   // console.log('rule2 verts', filling.vertices);
+  //  console.log('rule2 ids', filling.faces);
+   // console.log(this.heap);
 	return vNew;
 };
 
@@ -98,11 +108,12 @@ AdvancingFront.applyRule2 = function( front, filling, angle ) {
  * @return {THREE.Vector3} New vertex.
  */
 AdvancingFront.applyRule3 = function( front, filling, angle ) {
+	console.log('applyRule3')
 	const vp = angle.vertices[0];
 	const v = angle.vertices[1];
 	const vn = angle.vertices[2];
 	const vNew = this.rule3( front, filling, vp, v, vn, angle );
-
+	
 	// Angle has successfully been processed.
 	// Update the angle itself, neighbouring angles and create a new one.
 	if( vNew ) {
@@ -252,7 +263,7 @@ AdvancingFront.rule1 = function( front, filling, vp, v, vn ) {
 
 	// The vector v is not a part of the (moving) hole front anymore.
 	front.vertices.splice( vIndexFront, 1 );
-
+	//console.log('result1: ',front.vertices);
 	return true;
 };
 
@@ -288,7 +299,9 @@ AdvancingFront.rule2 = function( front, filling, vp, v, vn ) {
 
 	// Update front
 	front.vertices[vIndexFront] = vNew;
-
+	// console.log('test2 : ', filling.faces.length);
+    // console.log('test2 verts', filling.vertices);
+    // console.log('test2 ids', filling.faces);
 	return vNew;
 };
 
@@ -305,11 +318,11 @@ AdvancingFront.rule2 = function( front, filling, vp, v, vn ) {
  */
 AdvancingFront.rule3 = function( front, filling, vp, v, vn, angle ) {
 	const vNew = this.rule3Calc( vp, v, vn, angle );
-
+	
 	if( this.collisionTest( front, filling, vNew, vp, vn ) ) {
 		return false;
 	}
-
+	
 	// New vertex
 	filling.vertices.push( vNew );
 
@@ -318,12 +331,12 @@ AdvancingFront.rule3 = function( front, filling, vp, v, vn, angle ) {
 	const vIndexFront = front.vertices.indexOf( v );
 	const vnIndexFilling = filling.vertices.indexOf( vn );
 	const vIndexFilling = filling.vertices.indexOf( v );
-
+	console.log( vIndexFront, vnIndexFilling,vIndexFilling)
 	filling.faces.push( new THREE.Face3( vnIndexFilling, vIndexFilling, len - 1 ) );
-
+	
 	// Update front
 	front.vertices.splice( vIndexFront + 1, 0, vNew );
-
+	//console.log(front.vertices);
 	return vNew;
 };
 
@@ -331,7 +344,7 @@ AdvancingFront.rule3 = function( front, filling, vp, v, vn, angle ) {
 /**
  * Fill the hole using the advancing front algorithm.
  * @param  {THREE.Geometry} modelGeo       - The model to fill the holes in.
- * @param  {THREE.Line[]}   hole           - The hole described by lines.
+ * @param  {[], object}   hole           - The hole described by lines.
  * @param  {number}         mergeThreshold - Threshold for merging.
  * @return {THREE.Geometry} The generated filling.
  */
@@ -348,10 +361,11 @@ AdvancingFront.start = function( modelGeo, hole, mergeThreshold, callback ) {
 
 	front.vertices = this.hole.slice( 0 );
 	filling.vertices = this.hole.slice( 0 );
-
+	//console.log(front.vertices);
+	// 중복된 버텍스를 안전하게 제거
 	front.mergeVertices();
 	filling.mergeVertices();
-
+	console.log(front.vertices);
 	this.initHeap( front );
 
 	// Main loop
@@ -365,6 +379,7 @@ AdvancingFront.start = function( modelGeo, hole, mergeThreshold, callback ) {
 
 		// Close last hole
 		if( front.vertices.length == 4 ) {
+			console.log('clode4')
 			filling = this.closeHole4( front, filling );
 			break;
 		}
@@ -405,7 +420,11 @@ AdvancingFront.start = function( modelGeo, hole, mergeThreshold, callback ) {
 
 		if( !vNew || front.vertices.length != 3 ) {
 			// Compute the distances between each new created
-			// vertex and see, if they can be merged.
+			// vertex and see, if they can be merged. 
+			if(filling.vertices.length === 102){
+				console.log('before rule2 verts : ', filling.vertices);
+				console.log('before rule2 ids : ', filling.faces);	
+			}
 			this.mergeByDistance( front, filling, vNew, this.hole );
 		}
 	}
